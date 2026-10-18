@@ -44,9 +44,10 @@ Add the marketplace from the GitHub source rather than a local path, and set `ma
 Checked on omp 18.12.1:
 
 - The skills, both agents, `omp-adapter`, and the always-apply rule load, and the rule text appears in the system prompt (via `--plugin-dir`).
-- `omp plugin marketplace add` and `omp plugin install` succeed from a local checkout.
+- `omp plugin marketplace add dayjobdoor/gstack` and `omp plugin install` succeed from the GitHub source, and the skills appear in `omp skills list`.
+- The daily sync workflow runs green on GitHub.
 
-Not yet verified: installing from the GitHub source, startup auto-update, and a full `poteto-mode` run end to end on omp. Reports welcome.
+Not yet verified: startup auto-update and a full `poteto-mode` run end to end on omp. Reports welcome.
 
 ## Keeping up with upstream
 
