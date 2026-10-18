@@ -11,6 +11,9 @@ tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 git clone -q --depth 1 --filter=blob:none --sparse https://github.com/cursor/plugins.git "$tmp/cp"
 git -C "$tmp/cp" sparse-checkout set pstack
 src="$tmp/cp/pstack"
+# Refuse to wipe plugin/ if upstream restructured or the clone came back empty.
+[ "$(find "$src/skills" -name SKILL.md 2>/dev/null | wc -l)" -ge 10 ] && [ -f "$src/plugin.json" ] && [ -d "$src/agents" ] && [ -d "$src/docs/guide" ] \
+  || { echo "sync: upstream layout unexpected, aborting" >&2; exit 1; }
 rm -rf plugin/agents plugin/docs
 # omp-adapter is ours; everything else under skills/ is upstream.
 for d in plugin/skills/*/; do [ "$(basename "$d")" = omp-adapter ] || rm -rf "$d"; done

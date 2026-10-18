@@ -6,9 +6,11 @@ on:
 permissions:
   contents: write
   pull-requests: write
+concurrency: sync-upstream
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - run: ./tools/sync.sh
