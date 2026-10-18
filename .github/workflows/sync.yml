@@ -1,0 +1,30 @@
+name: sync-upstream
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./tools/sync.sh
+      - name: Open PR on change
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then echo "up to date"; exit 0; fi
+          v=$(cat VERSION)
+          branch="sync/$v"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add -A
+          git commit -m "sync upstream pstack $(cat UPSTREAM_VERSION) ($v)"
+          git push --force origin "$branch"
+          gh pr view "$branch" >/dev/null 2>&1 || gh pr create --base main --head "$branch" \
+            --title "sync upstream pstack $(cat UPSTREAM_VERSION)" \
+            --body "Automated sync from cursor/plugins/pstack. Review skill/agent diffs before merging: they are instructions the agent will follow."
