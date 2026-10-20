@@ -6,7 +6,7 @@
       "name": "gstack",
       "source": "./plugin",
       "description": "omp port of Lauren Tan's pstack (cursor/plugins/pstack): rigorous agent workflows.",
-      "version": "0.15.28.1",
+      "version": "0.15.29.1",
       "homepage": "https://github.com/dayjobdoor/gstack",
       "license": "MIT"
     }
