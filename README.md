@@ -19,7 +19,7 @@ Then, once, in an omp session:
 /skill:setup-pstack
 ```
 
-It detects your models and writes `~/.omp/agent/rules/pstack-models.md`. After that, `poteto-mode` is picked automatically for multi-file changes, design choices, and bugs with unknown causes; call it directly with `/skill:poteto-mode`, or start from `/skill:poteto-help`.
+It detects your models and writes `rules/pstack-models.md` in your omp agent directory (`$PI_CODING_AGENT_DIR`, default `~/.omp/agent`). After that, `poteto-mode` is picked automatically for multi-file changes, design choices, and bugs with unknown causes; call it directly with `/skill:poteto-mode`, or start from `/skill:poteto-help`.
 
 Add the marketplace from the GitHub source rather than a local path, and set `marketplace.autoUpdate` to `auto` if you want updates picked up at startup. The default, `notify`, only writes a debug log.
 
@@ -37,7 +37,8 @@ Add the marketplace from the GitHub source rather than a local path, and set `ma
 
 - omp does not run Claude Code SessionStart hooks, so the routing prompt ships as an always-apply rule instead.
 - Cursor-only steps (Bugbot, Automations, cloud agents) are skipped with a one-line note.
-- `task` has no per-call effort field. A model's effort level in `pstack-models.md` is passed as prose or dropped.
+- `task` has an effort field only when the `task.enableEffort` setting is on. `omp-adapter` maps a model's effort level to it when present, and otherwise passes it as prose or drops it.
+- Scripts, paths, and transcripts are mapped in `omp-adapter`: `pstack/skills/...` script paths, `$PI_CODING_AGENT_DIR` (omp profiles), omp session JSONL, and a patched `worktree-audit.sh` invocation. `worktree-audit.sh` itself is unchanged.
 
 ## Status
 
@@ -46,6 +47,10 @@ Checked on omp 18.12.1:
 - The skills, both agents, `omp-adapter`, and the always-apply rule load, and the rule text appears in the system prompt (via `--plugin-dir`).
 - `omp plugin marketplace add dayjobdoor/gstack` and `omp plugin install` succeed from the GitHub source, and the skills appear in `omp skills list`.
 - The daily sync workflow runs green on GitHub.
+
+Checked on omp 18.18.0 over ACP with `anthropic/claude-haiku-5-5:auto`: `skill://omp-adapter` and `rule://pstack` resolve, `$PI_CODING_AGENT_DIR/rules` is read while `~/.omp/agent/rules` is ignored under a profile, and the patched `worktree-audit.sh` buckets a worktree used today as `verify-recent-chat` (the stock script says `safe`).
+
+With `--no-extensions`, Haiku echoed back `--append-system-prompt` text, a project always-apply rule, and the pstack rule ("You have pstack."), and a `task` subagent echoed the project rule. So rules reach the prompt and subagents. In the profile tested, other extensions hid all of this from the model, so a profile with prompt-rewriting extensions can drop the routing rule.
 
 Not yet verified: startup auto-update and a full `poteto-mode` run end to end on omp. Reports welcome.
 
